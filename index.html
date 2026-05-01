@@ -326,11 +326,64 @@
       color: var(--muted);
     }
 
+    .controls-toggle {
+      display: none;
+    }
+
     @media (max-width: 600px) {
       .grid { padding: 16px; gap: 16px; }
-      .controls { padding: 14px 16px; }
       header { padding: 20px 16px; }
       header .logo { font-size: 22px; }
+
+      .controls {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 0;
+        gap: 0;
+      }
+
+      .controls-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 16px;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+      }
+
+      .controls-toggle svg {
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+      }
+
+      .controls.open .controls-toggle svg {
+        transform: rotate(180deg);
+      }
+
+      .controls-body {
+        display: none;
+        flex-direction: column;
+        gap: 10px;
+        padding: 0 16px 14px;
+      }
+
+      .controls.open .controls-body {
+        display: flex;
+      }
+
+      .search-wrap {
+        max-width: 100%;
+      }
+
+      select {
+        width: 100%;
+      }
     }
   </style>
 </head>
@@ -344,21 +397,29 @@
   <div class="count-badge" id="countBadge">59 Fahrzeuge</div>
 </header>
 
-<div class="controls">
-  <div class="search-wrap">
+<div class="controls" id="controls">
+  <button class="controls-toggle" id="controlsToggle" aria-expanded="false" aria-controls="controlsBody">
+    <span>Filter &amp; Sortierung</span>
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      <polyline points="6 9 12 15 18 9"/>
     </svg>
-    <input type="search" id="searchInput" placeholder="Hersteller oder Modell suchen…" />
+  </button>
+  <div class="controls-body" id="controlsBody">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+      </svg>
+      <input type="search" id="searchInput" placeholder="Hersteller oder Modell suchen…" />
+    </div>
+    <select id="sortSelect">
+      <option value="monatlich">Sortierung: Monatliche Rate ↑</option>
+      <option value="reichweite_desc">Sortierung: Reichweite ↓</option>
+      <option value="preis">Sortierung: Listenpreis ↑</option>
+      <option value="ladeleistung_desc">Sortierung: Ladegeschwindigkeit ↓</option>
+      <option value="alpha">Sortierung: A–Z</option>
+    </select>
+    <div class="filter-group" id="brandFilters"></div>
   </div>
-  <select id="sortSelect">
-    <option value="monatlich">Sortierung: Monatliche Rate ↑</option>
-    <option value="reichweite_desc">Sortierung: Reichweite ↓</option>
-    <option value="preis">Sortierung: Listenpreis ↑</option>
-    <option value="ladeleistung_desc">Sortierung: Ladegeschwindigkeit ↓</option>
-    <option value="alpha">Sortierung: A–Z</option>
-  </select>
-  <div class="filter-group" id="brandFilters"></div>
 </div>
 
 <div class="grid" id="carGrid"></div>
@@ -583,6 +644,13 @@ document.getElementById('searchInput').addEventListener('input', e => {
 document.getElementById('sortSelect').addEventListener('change', e => {
   sortMode = e.target.value;
   renderCards();
+});
+
+document.getElementById('controlsToggle').addEventListener('click', () => {
+  const controls = document.getElementById('controls');
+  const toggle = document.getElementById('controlsToggle');
+  const open = controls.classList.toggle('open');
+  toggle.setAttribute('aria-expanded', open);
 });
 </script>
 </body>
