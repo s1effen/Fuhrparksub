@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Elektroauto Quartett – Jungheinrich</title>
+  <style>
+    :root {
+      --bg: #0f0f13;
+      --surface: #1a1a22;
+      --border: #2a2a38;
+      --text: #e8e8f0;
+      --muted: #7a7a9a;
+      --accent: #4fc3f7;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+    }
+
+    header {
+      background: linear-gradient(135deg, #0d1b2a 0%, #1a2744 50%, #0d1b2a 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 28px 32px 24px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    header .logo {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #4fc3f7, #81d4fa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    header .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+
+    header .count-badge {
+      margin-left: auto;
+      background: rgba(79,195,247,0.12);
+      border: 1px solid rgba(79,195,247,0.3);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+    }
+
+    .controls {
+      padding: 20px 32px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      background: rgba(26,26,34,0.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .search-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 360px;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    input[type="search"] {
+      width: 100%;
+      padding: 9px 12px 9px 38px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    input[type="search"]:focus { border-color: var(--accent); }
+
+    select {
+      padding: 9px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    select:focus { border-color: var(--accent); }
+
+    .filter-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .brand-filter {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.3px;
+    }
+
+    .brand-filter.active,
+    .brand-filter:hover {
+      background: rgba(79,195,247,0.12);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px;
+      padding: 32px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
+      cursor: default;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 48px rgba(0,0,0,0.5);
+      border-color: var(--brand-color, var(--accent));
+    }
+
+    .card-header {
+      background: var(--brand-color, #1e293b);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-name {
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .rank-badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.6);
+      background: rgba(0,0,0,0.25);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .card-image {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      object-position: center;
+      background: #111118;
+      display: block;
+    }
+
+    .card-body {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .car-name {
+      font-size: 15px;
+      font-weight: 700;
+      line-height: 1.3;
+      color: var(--text);
+    }
+
+    .rate-highlight {
+      background: linear-gradient(135deg, rgba(79,195,247,0.08), rgba(79,195,247,0.04));
+      border: 1px solid rgba(79,195,247,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+    }
+
+    .rate-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .rate-value {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--accent);
+      margin-left: auto;
+    }
+
+    .rate-unit {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stats {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .stat-row {
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-icon {
+      font-size: 13px;
+      text-align: center;
+      opacity: 0.8;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .stat-value {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .stat-bar-wrap {
+      grid-column: 2 / 4;
+      height: 3px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-top: -4px;
+    }
+
+    .stat-bar {
+      height: 100%;
+      border-radius: 2px;
+      background: var(--brand-color, var(--accent));
+      opacity: 0.5;
+      transition: width 0.4s ease;
+    }
+
+    .card-footer {
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preis-label { font-size: 11px; color: var(--muted); }
+    .preis-value { font-size: 13px; font-weight: 600; color: var(--text); }
+
+    .faktor-pill {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.06);
+      color: var(--muted);
+    }
+
+    .faktor-pill.good {
+      background: rgba(76,175,80,0.15);
+      color: #81c784;
+    }
+
+    .no-results {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 600px) {
+      .grid { padding: 16px; gap: 16px; }
+      .controls { padding: 14px 16px; }
+      header { padding: 20px 16px; }
+      header .logo { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">⚡ Elektroauto Quartett</div>
+    <div class="subtitle">Jungheinrich Fuhrparkübersicht · Alle Preise netto</div>
+  </div>
+  <div class="count-badge" id="countBadge">59 Fahrzeuge</div>
+</header>
+
+<div class="controls">
+  <div class="search-wrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+    </svg>
+    <input type="search" id="searchInput" placeholder="Hersteller oder Modell suchen…" />
+  </div>
+  <select id="sortSelect">
+    <option value="monatlich">Sortierung: Monatliche Rate ↑</option>
+    <option value="reichweite_desc">Sortierung: Reichweite ↓</option>
+    <option value="preis">Sortierung: Listenpreis ↑</option>
+    <option value="ladeleistung_desc">Sortierung: Ladegeschwindigkeit ↓</option>
+    <option value="alpha">Sortierung: A–Z</option>
+  </select>
+  <div class="filter-group" id="brandFilters"></div>
+</div>
+
+<div class="grid" id="carGrid"></div>
+
+<script>
+const brandColors = {
+  AUDI:     '#BB0A30',
+  BMW:      '#0066B1',
+  CUPRA:    '#7B5E3A',
+  FORD:     '#003478',
+  HYUNDAI:  '#002C5F',
+  KIA:      '#BB162B',
+  MERCEDES: '#00A19A',
+  MINI:     '#1C1C1C',
+  OPEL:     '#B5872A',
+  POLESTAR: '#2E2E2E',
+  RENAULT:  '#C0392B',
+  SEAT:     '#DD1616',
+  SKODA:    '#4BA82E',
+  SMART:    '#00848E',
+  VOLVO:    '#003057',
+  VW:       '#001E50',
+};
+
+const cars = [
+  {"hersteller":"HYUNDAI","typ":"Inster 42kWh/49kWh","preis":20084.03,"reichweite":370,"ladeleistung":85,"faktor":1.31,"servicerate":29.74,"monatlich":158.44,"image":"HYUNDAI_Inster.jpg"},
+  {"hersteller":"OPEL","typ":"Frontera Electric","preis":24361.34,"reichweite":406,"ladeleistung":100,"faktor":0.98,"servicerate":41.35,"monatlich":160.97,"image":"OPEL_Frontera_Electric.jpg"},
+  {"hersteller":"RENAULT","typ":"R5 E-Tech","preis":23529.41,"reichweite":410,"ladeleistung":100,"faktor":1.186,"servicerate":34.58,"monatlich":178.50,"image":"RENAULT_R5_E-Tech.jpg"},
+  {"hersteller":"RENAULT","typ":"R4 E-Tech","preis":24789.92,"reichweite":409,"ladeleistung":100,"faktor":1.15,"servicerate":31.95,"monatlich":183.39,"image":"RENAULT_R4_E-Tech.jpg"},
+  {"hersteller":"MINI","typ":"Aceman E","preis":24957.98,"reichweite":309,"ladeleistung":75,"faktor":1.295,"servicerate":5.80,"monatlich":190.73,"image":"MINI_Aceman_E.jpg"},
+  {"hersteller":"VW","typ":"ID.3","preis":28008.40,"reichweite":605,"ladeleistung":185,"faktor":1.072,"servicerate":23.76,"monatlich":194.91,"image":"VW_ID3.jpg"},
+  {"hersteller":"CUPRA","typ":"Tavascan Endurance","preis":40621.85,"reichweite":553,"ladeleistung":135,"faktor":0.636,"servicerate":26.84,"monatlich":201.66,"image":"CUPRA_Tavascan_Endurance.jpg"},
+  {"hersteller":"MINI","typ":"Countryman E/SE","preis":30924.37,"reichweite":501,"ladeleistung":130,"faktor":1.055,"servicerate":5.80,"monatlich":206.33,"image":"MINI_Countryman_E.jpg"},
+  {"hersteller":"MINI","typ":"Aceman SE","preis":27899.16,"reichweite":405,"ladeleistung":95,"faktor":1.243,"servicerate":5.80,"monatlich":211.23,"image":"MINI_Aceman_SE.jpg"},
+  {"hersteller":"OPEL","typ":"Mokka-e","preis":30873.95,"reichweite":397,"ladeleistung":100,"faktor":0.995,"servicerate":42.53,"monatlich":216.47,"image":"OPEL_Mokka-e.jpg"},
+  {"hersteller":"KIA","typ":"EV3 58kWh","preis":30243.70,"reichweite":436,"ladeleistung":101,"faktor":1.04,"servicerate":37.72,"monatlich":216.47,"image":"KIA_EV3.jpg"},
+  {"hersteller":"CUPRA","typ":"Born 60kWh/79kWh","preis":33991.60,"reichweite":594,"ladeleistung":185,"faktor":0.854,"servicerate":48.53,"monatlich":217.38,"image":"CUPRA_Born.jpg"},
+  {"hersteller":"HYUNDAI","typ":"KONA EV","preis":31924.37,"reichweite":510,"ladeleistung":94,"faktor":0.94,"servicerate":53.28,"monatlich":221.02,"image":"HYUNDAI_KONA_EV.jpg"},
+  {"hersteller":"FORD","typ":"Puma Gen-E","preis":31008.40,"reichweite":376,"ladeleistung":100,"faktor":1.02,"servicerate":41.35,"monatlich":221.37,"image":"FORD_Puma_Gen-E.jpg"},
+  {"hersteller":"VOLVO","typ":"EX30","preis":32344.54,"reichweite":660,"ladeleistung":175,"faktor":0.95,"servicerate":48.29,"monatlich":223.27,"image":"VOLVO_EX30.jpg"},
+  {"hersteller":"KIA","typ":"EV4 58kWh","preis":31588.24,"reichweite":440,"ladeleistung":101,"faktor":1.05,"servicerate":31.84,"monatlich":226.12,"image":"KIA_EV4.jpg"},
+  {"hersteller":"CUPRA","typ":"Tavascan VZ 4Drive","preis":44462.18,"reichweite":513,"ladeleistung":135,"faktor":0.651,"servicerate":26.84,"monatlich":228.60,"image":"CUPRA_Tavascan_VZ.jpg"},
+  {"hersteller":"FORD","typ":"Explorer Elektro Standard Range","preis":33529.41,"reichweite":444,"ladeleistung":145,"faktor":1.032,"servicerate":24.38,"monatlich":234.62,"image":"FORD_Explorer_Electric.jpg"},
+  {"hersteller":"SMART","typ":"smart #1","preis":31084.03,"reichweite":440,"ladeleistung":150,"faktor":1.122,"servicerate":36.56,"monatlich":237.60,"image":"SMART_smart_1.jpg"},
+  {"hersteller":"FORD","typ":"Capri Elektro Standard Range","preis":35630.25,"reichweite":464,"ladeleistung":145,"faktor":0.955,"servicerate":42.53,"monatlich":246.69,"image":"FORD_Capri_Electric.jpg"},
+  {"hersteller":"OPEL","typ":"Astra Electric / Sports Tourer Electric","preis":31924.37,"reichweite":454,"ladeleistung":100,"faktor":1.147,"servicerate":37.28,"monatlich":250.07,"image":"OPEL_Astra_Electric.jpg"},
+  {"hersteller":"KIA","typ":"EV3 81kWh","preis":34781.51,"reichweite":605,"ladeleistung":128,"faktor":0.995,"servicerate":53.72,"monatlich":254.57,"image":"KIA_EV3_Long_Range.jpg"},
+  {"hersteller":"SMART","typ":"smart #3","preis":34025.21,"reichweite":455,"ladeleistung":150,"faktor":1.086,"servicerate":36.56,"monatlich":256.46,"image":"SMART_smart_3.jpg"},
+  {"hersteller":"VW","typ":"ID.4","preis":33894.96,"reichweite":572,"ladeleistung":185,"faktor":1.05,"servicerate":51.62,"monatlich":257.00,"image":"VW_ID4.jpg"},
+  {"hersteller":"SKODA","typ":"Enyaq","preis":37310.92,"reichweite":578,"ladeleistung":175,"faktor":0.924,"servicerate":52.81,"monatlich":259.15,"image":"SKODA_Enyaq.jpg"},
+  {"hersteller":"SKODA","typ":"Enyaq Coupe","preis":39369.75,"reichweite":587,"ladeleistung":175,"faktor":0.937,"servicerate":23.34,"monatlich":260.83,"image":"SKODA_Enyaq_Coupe.jpg"},
+  {"hersteller":"KIA","typ":"EV4 81kWh","preis":36336.13,"reichweite":625,"ladeleistung":128,"faktor":0.97,"servicerate":53.72,"monatlich":261.88,"image":"KIA_EV4_Long_Range.jpg"},
+  {"hersteller":"SKODA","typ":"Elroq","preis":37126.05,"reichweite":573,"ladeleistung":185,"faktor":1.02,"servicerate":26.13,"monatlich":262.93,"image":"SKODA_Elroq.jpg"},
+  {"hersteller":"POLESTAR","typ":"Polestar 2 70kWh","preis":41168.07,"reichweite":554,"ladeleistung":180,"faktor":0.89,"servicerate":29.00,"monatlich":266.84,"image":"POLESTAR_Polestar_2.jpg"},
+  {"hersteller":"VW","typ":"ID.5","preis":36109.24,"reichweite":567,"ladeleistung":185,"faktor":1.03,"servicerate":45.79,"monatlich":268.05,"image":"VW_ID5.jpg"},
+  {"hersteller":"RENAULT","typ":"Scenic E-Tech","preis":36134.45,"reichweite":430,"ladeleistung":150,"faktor":1.055,"servicerate":38.97,"monatlich":269.54,"image":"RENAULT_Scenic_E-Tech.jpg"},
+  {"hersteller":"HYUNDAI","typ":"IONIQ 6","preis":36890.76,"reichweite":680,"ladeleistung":260,"faktor":1.02,"servicerate":44.02,"monatlich":271.36,"image":"HYUNDAI_IONIQ_6.jpg"},
+  {"hersteller":"RENAULT","typ":"Megane E-Tech","preis":34453.78,"reichweite":468,"ladeleistung":130,"faktor":1.13,"servicerate":41.35,"monatlich":271.73,"image":"RENAULT_Megane_E-Tech.jpg"},
+  {"hersteller":"HYUNDAI","typ":"IONIQ 5 63kWh","preis":38277.31,"reichweite":440,"ladeleistung":195,"faktor":0.979,"servicerate":43.67,"monatlich":273.48,"image":"HYUNDAI_IONIQ_5.jpg"},
+  {"hersteller":"FORD","typ":"Explorer Elektro Extended Range","preis":41092.44,"reichweite":602,"ladeleistung":185,"faktor":0.914,"servicerate":42.53,"monatlich":279.84,"image":"FORD_Explorer_Electric_Extended_Range.jpg"},
+  {"hersteller":"OPEL","typ":"Grandland Electric","preis":39285.71,"reichweite":694,"ladeleistung":160,"faktor":0.97,"servicerate":51.62,"monatlich":284.10,"image":"OPEL_Grandland_Electric.jpg"},
+  {"hersteller":"FORD","typ":"Capri Elektro Extended Range","preis":43193.28,"reichweite":627,"ladeleistung":185,"faktor":0.874,"servicerate":42.53,"monatlich":285.83,"image":"FORD_Capri_Electric_Extended_Range.jpg"},
+  {"hersteller":"BMW","typ":"iX1 eDrive20","preis":41512.61,"reichweite":514,"ladeleistung":130,"faktor":1.044,"servicerate":6.52,"monatlich":293.46,"image":"BMW_iX1.jpg"},
+  {"hersteller":"KIA","typ":"EV6 63kWh","preis":37806.72,"reichweite":428,"ladeleistung":195,"faktor":1.139,"servicerate":26.47,"monatlich":294.82,"image":"KIA_EV6.jpg"},
+  {"hersteller":"VOLVO","typ":"EX40","preis":42008.40,"reichweite":574,"ladeleistung":200,"faktor":0.953,"servicerate":42.53,"monatlich":296.32,"image":"VOLVO_EX40.jpg"},
+  {"hersteller":"AUDI","typ":"Q4 e-tron 40 / 40 Sportback","preis":38781.51,"reichweite":422,"ladeleistung":165,"faktor":1.06,"servicerate":47.75,"monatlich":298.10,"image":"AUDI_Q4_e-tron_quattro.jpg"},
+  {"hersteller":"POLESTAR","typ":"Polestar 2 Single 82kWh","preis":44277.31,"reichweite":659,"ladeleistung":205,"faktor":0.923,"servicerate":29.00,"monatlich":298.58,"image":"POLESTAR_Polestar_2_Single_Motor.jpg"},
+  {"hersteller":"MERCEDES","typ":"CLA EQ 200","preis":41530.00,"reichweite":542,"ladeleistung":200,"faktor":0.9,"servicerate":76.13,"monatlich":299.29,"image":"MERCEDES_CLA_EQ.jpg"},
+  {"hersteller":"KIA","typ":"EV4 Fastback 58kWh","preis":34865.55,"reichweite":440,"ladeleistung":101,"faktor":1.305,"servicerate":31.84,"monatlich":305.25,"image":"KIA_EV4_Fastback.jpg"},
+  {"hersteller":"HYUNDAI","typ":"IONIQ 5 84kWh","preis":45210.08,"reichweite":570,"ladeleistung":260,"faktor":0.935,"servicerate":42.53,"monatlich":316.73,"image":"HYUNDAI_IONIQ_5_Long_Range.jpg"},
+  {"hersteller":"BMW","typ":"iX2 eDrive20/xDrive30","preis":42857.14,"reichweite":512,"ladeleistung":130,"faktor":1.098,"servicerate":6.52,"monatlich":318.14,"image":"BMW_iX2.jpg"},
+  {"hersteller":"VOLVO","typ":"EC40","preis":45705.88,"reichweite":582,"ladeleistung":200,"faktor":0.952,"servicerate":42.53,"monatlich":325.07,"image":"VOLVO_EC40.jpg"},
+  {"hersteller":"MERCEDES","typ":"CLA EQ 250+","preis":46830.00,"reichweite":792,"ladeleistung":320,"faktor":0.907,"servicerate":50.58,"monatlich":326.34,"image":"MERCEDES_CLA_EQ_250.jpg"},
+  {"hersteller":"SMART","typ":"smart #5","preis":38571.43,"reichweite":590,"ladeleistung":400,"faktor":1.231,"servicerate":36.56,"monatlich":328.08,"image":"SMART_smart_5.jpg"},
+  {"hersteller":"KIA","typ":"EV6 84kWh","preis":42008.40,"reichweite":582,"ladeleistung":258,"faktor":1.07,"servicerate":53.72,"monatlich":331.32,"image":"KIA_EV6_Long_Range.jpg"},
+  {"hersteller":"KIA","typ":"EV5","preis":38647.06,"reichweite":530,"ladeleistung":150,"faktor":1.206,"servicerate":53.72,"monatlich":333.15,"image":"KIA_EV5.jpg"},
+  {"hersteller":"AUDI","typ":"Q4 e-tron 45/55 / 45/55 Sportback quattro","preis":44495.80,"reichweite":573,"ladeleistung":175,"faktor":1.01,"servicerate":47.75,"monatlich":333.58,"image":"AUDI_Q4_e-tron_Sportback.jpg"},
+  {"hersteller":"POLESTAR","typ":"Polestar 4 Single Motor","preis":52016.81,"reichweite":620,"ladeleistung":200,"faktor":0.85,"servicerate":29.00,"monatlich":335.94,"image":"POLESTAR_Polestar_4_Single_Motor.jpg"},
+  {"hersteller":"MERCEDES","typ":"EQA 250+/300/350 inkl. 4Matic","preis":43370.00,"reichweite":561,"ladeleistung":100,"faktor":1.032,"servicerate":62.67,"monatlich":338.56,"image":"MERCEDES_EQA.jpg"},
+  {"hersteller":"MERCEDES","typ":"CLA Shooting Brake EQ","preis":47980.00,"reichweite":768,"ladeleistung":320,"faktor":0.915,"servicerate":53.30,"monatlich":338.86,"image":"MERCEDES_CLA_Shooting_Brake_EQ.jpg"},
+  {"hersteller":"BMW","typ":"i4 eDrive35","preis":48907.56,"reichweite":514,"ladeleistung":180,"faktor":1.001,"servicerate":6.52,"monatlich":343.19,"image":"BMW_i4_eDrive35.jpg"},
+  {"hersteller":"BMW","typ":"iX1 xDrive30","preis":47563.03,"reichweite":466,"ladeleistung":130,"faktor":1.044,"servicerate":6.52,"monatlich":344.13,"image":"BMW_iX1_xDrive30.jpg"},
+  {"hersteller":"SEAT","typ":"Leon ST","preis":33991.60,"reichweite":0,"ladeleistung":0,"faktor":1.2,"servicerate":55.78,"monatlich":347.79,"image":"SEAT_Leon_ST.jpg"},
+  {"hersteller":"KIA","typ":"EV4 Fastback 81kWh","preis":39613.45,"reichweite":612,"ladeleistung":128,"faktor":1.236,"servicerate":53.72,"monatlich":349.04,"image":"KIA_EV4_Fastback_Long_Range.jpg"},
+];
+
+const maxVals = {
+  reichweite: Math.max(...cars.map(c => c.reichweite)),
+  ladeleistung: Math.max(...cars.map(c => c.ladeleistung)),
+  monatlich: Math.max(...cars.map(c => c.monatlich)),
+};
+
+const fmt = (n, dec=0) => n.toLocaleString('de-DE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+const fmtEur = (n) => fmt(n, 2) + ' €';
+const fmtMon = (n) => fmt(n, 2) + ' €/Monat';
+
+const brands = [...new Set(cars.map(c => c.hersteller))].sort();
+let activeBrand = null;
+let searchQuery = '';
+let sortMode = 'monatlich';
+
+function buildBrandFilters() {
+  const container = document.getElementById('brandFilters');
+  const all = document.createElement('button');
+  all.className = 'brand-filter active';
+  all.textContent = 'Alle';
+  all.onclick = () => { activeBrand = null; updateFilters(); };
+  container.appendChild(all);
+
+  brands.forEach(b => {
+    const btn = document.createElement('button');
+    btn.className = 'brand-filter';
+    btn.textContent = b;
+    btn.dataset.brand = b;
+    btn.onclick = () => { activeBrand = b; updateFilters(); };
+    container.appendChild(btn);
+  });
+}
+
+function updateFilters() {
+  document.querySelectorAll('.brand-filter').forEach(btn => {
+    btn.classList.toggle('active',
+      btn.textContent === 'Alle' ? activeBrand === null : btn.dataset.brand === activeBrand
+    );
+  });
+  renderCards();
+}
+
+function sortedFiltered() {
+  let list = cars.filter(c => {
+    const q = searchQuery.toLowerCase();
+    const match = c.hersteller.toLowerCase().includes(q) || c.typ.toLowerCase().includes(q);
+    const brandOk = !activeBrand || c.hersteller === activeBrand;
+    return match && brandOk;
+  });
+
+  switch (sortMode) {
+    case 'monatlich':       list.sort((a,b) => a.monatlich - b.monatlich); break;
+    case 'reichweite_desc': list.sort((a,b) => b.reichweite - a.reichweite); break;
+    case 'preis':           list.sort((a,b) => a.preis - b.preis); break;
+    case 'ladeleistung_desc': list.sort((a,b) => b.ladeleistung - a.ladeleistung); break;
+    case 'alpha':           list.sort((a,b) => (a.hersteller+a.typ).localeCompare(b.hersteller+b.typ)); break;
+  }
+  return list;
+}
+
+function renderCards() {
+  const grid = document.getElementById('carGrid');
+  const list = sortedFiltered();
+
+  document.getElementById('countBadge').textContent = list.length + ' Fahrzeuge';
+
+  if (list.length === 0) {
+    grid.innerHTML = '<div class="no-results">Keine Fahrzeuge gefunden.</div>';
+    return;
+  }
+
+  grid.innerHTML = list.map((c, i) => {
+    const color = brandColors[c.hersteller] || '#2a2a38';
+    const rPct = c.reichweite ? (c.reichweite / maxVals.reichweite * 100).toFixed(1) : 0;
+    const lPct = c.ladeleistung ? (c.ladeleistung / maxVals.ladeleistung * 100).toFixed(1) : 0;
+    const mPct = (c.monatlich / maxVals.monatlich * 100).toFixed(1);
+    const faktorGood = c.faktor < 1.0;
+
+    return `
+    <div class="card" style="--brand-color:${color}">
+      <div class="card-header">
+        <span class="brand-name">${c.hersteller}</span>
+        <span class="rank-badge">#${i + 1}</span>
+      </div>
+      <img class="card-image" src="car_images/${c.image}" alt="${c.hersteller} ${c.typ}" loading="lazy" />
+      <div class="card-body">
+        <div class="car-name">${c.typ}</div>
+
+        <div class="rate-highlight">
+          <span class="rate-label">Monatliche Rate</span>
+          <span class="rate-value">${fmt(c.monatlich, 2)}</span>
+          <span class="rate-unit">€/Mon.</span>
+        </div>
+
+        <div class="stats">
+          <div class="stat-row">
+            <span class="stat-icon">🔋</span>
+            <span class="stat-label">WLTP-Reichweite</span>
+            <span class="stat-value">${c.reichweite > 0 ? c.reichweite + ' km' : '–'}</span>
+          </div>
+          ${c.reichweite > 0 ? `<div class="stat-row"><span></span><div class="stat-bar-wrap"><div class="stat-bar" style="width:${rPct}%"></div></div></div>` : ''}
+
+          <div class="stat-row">
+            <span class="stat-icon">⚡</span>
+            <span class="stat-label">DC-Ladeleistung</span>
+            <span class="stat-value">${c.ladeleistung > 0 ? c.ladeleistung + ' kW' : '–'}</span>
+          </div>
+          ${c.ladeleistung > 0 ? `<div class="stat-row"><span></span><div class="stat-bar-wrap"><div class="stat-bar" style="width:${lPct}%"></div></div></div>` : ''}
+
+          <div class="stat-row">
+            <span class="stat-icon">🔧</span>
+            <span class="stat-label">Servicerate</span>
+            <span class="stat-value">${fmt(c.servicerate, 2)} €/Mon.</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-footer">
+        <div>
+          <div class="preis-label">Netto-Listenpreis</div>
+          <div class="preis-value">${fmt(c.preis, 0)} €</div>
+        </div>
+        <div class="faktor-pill ${faktorGood ? 'good' : ''}">Faktor ${fmt(c.faktor, 3)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+buildBrandFilters();
+renderCards();
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchQuery = e.target.value;
+  renderCards();
+});
+
+document.getElementById('sortSelect').addEventListener('change', e => {
+  sortMode = e.target.value;
+  renderCards();
+});
+</script>
+</body>
+</html>
