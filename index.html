@@ -192,6 +192,21 @@
       border-radius: 10px;
     }
 
+    .fav-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 4px;
+      line-height: 1;
+      font-size: 16px;
+      opacity: 0.4;
+      transition: opacity 0.2s, transform 0.15s;
+      flex-shrink: 0;
+    }
+
+    .fav-btn:hover { opacity: 0.8; transform: scale(1.2); }
+    .fav-btn.active { opacity: 1; }
+
     .card-image {
       width: 100%;
       height: 180px;
@@ -419,6 +434,7 @@
       <option value="alpha">Sortierung: A–Z</option>
     </select>
     <div class="filter-group" id="brandFilters"></div>
+    <button class="brand-filter" id="favFilter">♥ Favoriten</button>
   </div>
 </div>
 
@@ -520,6 +536,14 @@ const brands = [...new Set(cars.map(c => c.hersteller))].sort();
 let activeBrand = null;
 let searchQuery = '';
 let sortMode = 'monatlich';
+let showFavOnly = false;
+
+const carKey = c => c.hersteller + '|' + c.typ;
+let favorites = new Set(JSON.parse(localStorage.getItem('quartett-favs') || '[]'));
+
+function saveFavs() {
+  localStorage.setItem('quartett-favs', JSON.stringify([...favorites]));
+}
 
 function buildBrandFilters() {
   const container = document.getElementById('brandFilters');
@@ -553,7 +577,8 @@ function sortedFiltered() {
     const q = searchQuery.toLowerCase();
     const match = c.hersteller.toLowerCase().includes(q) || c.typ.toLowerCase().includes(q);
     const brandOk = !activeBrand || c.hersteller === activeBrand;
-    return match && brandOk;
+    const favOk = !showFavOnly || favorites.has(carKey(c));
+    return match && brandOk && favOk;
   });
 
   switch (sortMode) {
@@ -584,11 +609,15 @@ function renderCards() {
     const mPct = (c.monatlich / maxVals.monatlich * 100).toFixed(1);
     const faktorGood = c.faktor < 1.0;
 
+    const key = carKey(c);
+    const isFav = favorites.has(key);
+
     return `
     <div class="card" style="--brand-color:${color}">
       <div class="card-header">
         <span class="brand-name">${c.hersteller}</span>
         <span class="rank-badge">#${i + 1}</span>
+        <button class="fav-btn ${isFav ? 'active' : ''}" data-key="${key}" title="Favorit">${isFav ? '♥' : '♡'}</button>
       </div>
       <img class="card-image" src="car_images/${c.image}" alt="${c.hersteller} ${c.typ}" loading="lazy" />
       <div class="card-body">
@@ -643,6 +672,29 @@ document.getElementById('searchInput').addEventListener('input', e => {
 
 document.getElementById('sortSelect').addEventListener('change', e => {
   sortMode = e.target.value;
+  renderCards();
+});
+
+document.getElementById('carGrid').addEventListener('click', e => {
+  const btn = e.target.closest('.fav-btn');
+  if (!btn) return;
+  const key = btn.dataset.key;
+  if (favorites.has(key)) {
+    favorites.delete(key);
+  } else {
+    favorites.add(key);
+  }
+  saveFavs();
+  renderCards();
+  if (showFavOnly && favorites.size === 0) {
+    showFavOnly = false;
+    document.getElementById('favFilter').classList.remove('active');
+  }
+});
+
+document.getElementById('favFilter').addEventListener('click', () => {
+  showFavOnly = !showFavOnly;
+  document.getElementById('favFilter').classList.toggle('active', showFavOnly);
   renderCards();
 });
 
